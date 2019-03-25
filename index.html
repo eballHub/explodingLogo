@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Basic Page Needs  -->
+<meta charset="utf-8">
+<title>logoExplode</title>
+
+<!-- Search Engine No Follow Meta Tags  -->
+<meta name="robots" content="noindex">
+<meta name="googlebot" content="noindex">
+
+<!-- css for logo positioning -->
+<style type="text/css">
+a#homeLogo {
+	width: 300px !important;
+	height: 300px !important;
+	text-indent: -3000px !important;
+	background: url(images/ADI.png) 0 0 no-repeat;
+	display: block !important;
+	z-index: 2 !important;
+}
+a#homeLogo span {
+	float: left !important;
+	display: block !important;
+	background: url(images/ADI.png);
+	background-repeat: no-repeat !important;
+}
+.clear {
+	clear: both !important;
+}
+#logoBox {
+	position: absolute !important;
+	top: 25% !important;
+	left: 60% !important;
+}
+h1 {
+	font-family: 'Chewy', cursive !important;
+	text-shadow: #333333 1px 1px 10px !important;
+}
+p {
+	font-family: 'Roboto Mono', !important;
+	font-size: 16px !important;
+}
+
+/*  media queries */
+@media only screen and (max-width: 480px) {
+#logoBox {
+	float: left !important;
+	top: 250px !important;
+	left: 2% !important;
+	diplay:block !important;
+}
+p {
+	font-family: 'Roboto Mono', !important;
+	font-size: 13px !important;
+}
+}
+</style>
+
+<!-- Mobile Specific Metas -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- FONT -->
+<link href='https://fonts.googleapis.com/css?family=Chewy' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Roboto+Mono:400,500' rel='stylesheet' type='text/css'>
+<!-- CSS -->
+<link rel="stylesheet" href="css/normalize.css">
+<link rel="stylesheet" href="css/skeleton.css">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="images/favicon.ico">
+
+<!-- external JavaScript -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/mootools/1.4.5/mootools-yui-compressed.js"></script>
+<script src="js/CSSAnimation.js"></script>
+<script src="js/CSSAnimation.MooTools.js"></script>
+<script type="text/javascript">
+
+// reset transforms to this
+		var zeros = {x:0, y:0, z:0};
+
+		// Implement animation methods on the element prototype
+		Element.implement({
+			
+			// Scatter elements all over the place
+			scatter: function(){
+				return $(this).trans({
+					x: Number.random(-1000, 1000),
+					y: Number.random(-1000, 1000),
+					z: Number.random(-500, 500)
+				}).rotate({
+					x: Number.random(-720, 720),
+					y: Number.random(-720, 720),
+					z: Number.random(-720, 720)
+				});
+			},
+			
+			// Return them to their original state
+			unscatter: function(){ 
+				return $(this).trans(zeros).rotate(zeros);
+			},
+			
+			//  Frighten the image!  AHHHHHHHH!
+			frighten: function(d){
+				this.setTransition('timing-function', 'ease-out').scatter();
+				setTimeout(function(){ 
+					this.setTransition('timing-function', 'ease-in-out').unscatter();
+				}.bind(this), 500);
+				return this;
+			},
+			
+			// Zoooooom into me
+			zoom: function(delay){
+				var self = this;
+				this.scale(0.01);
+				setTimeout(function(){
+					self.setTransition({
+						property: 'transform',
+						duration: '250ms',
+						'timing-function': 'ease-out'
+					}).scale(1.2);
+					setTimeout(function(){
+						self.setTransition('duration', '100ms').scale(1);
+					}, 250)
+				}, delay);
+			},
+			
+			// Create a slider
+			makeSlider: function(){
+				var open = false,
+					next = this.getNext(),
+					height = next.getScrollSize().y,
+					transition = {
+						property: 'height',
+						duration: '500ms',
+						transition: 'ease-out'
+					};
+				next.setTransition(transition);
+				this.addEvent('click', function(){
+					next.setStyle('height', open ? 0 : height);
+					open = !open;
+				});
+			},
+			
+			// Scatter, come back
+			fromChaos: (function(x){
+				var delay = 0;
+				return function(){
+					var element = this;
+					//element.scatter();
+					setTimeout(function(){
+						element.setTransition({
+							property: 'transform',
+							duration: '500ms',
+							'timing-function': 'ease-out'
+						});
+						setTimeout(function(){
+							element.unscatter();
+							element.addEvents({
+								mouseenter: element.frighten.bind(element),
+								touchstart: element.frighten.bind(element)
+							});
+						}, delay += x);
+					}, x);
+				}
+			}())
+
+		});
+		
+		// When the DOM is ready
+		window.addEvent("domready", function() {
+		
+			// Get the proper CSS prefix from the page
+			var cssPrefix = false;
+			switch(Browser.name) { // Implement only for Chrome, Firefox, and Safari
+				case "safari":
+				case "chrome":
+					cssPrefix = "webkit";
+					break;
+				case "firefox":
+					cssPrefix = "moz";
+					break;
+			}
+	
+			// If we support this browser....
+			if(cssPrefix) {
+				// 300 x 300
+				var cols = 10; // Desired columns
+				var rows = 10; // Desired rows
+				var totalWidth = 300; // Logo width
+				var totalHeight = 300; // Logo height
+				var singleWidth = Math.ceil(totalWidth / cols); // Shard width
+				var singleHeight = Math.ceil(totalHeight / rows); // Shard height
+				var shards = []; // Array of SPANs
+				
+				// Remove the text and background image from the logo
+				var logo = document.id("homeLogo").set("html","").setStyles({ backgroundImage: "none" });
+		
+				// For every desired row
+				rows.times(function(rowIndex) {
+					// For every desired column
+					cols.times(function(colIndex) {
+						// Create a SPAN element with the proper CSS settings
+						// Width, height, browser-specific CSS
+						var element = new Element("span",{
+							style: "width:" + (singleWidth) + "px;height:" + (singleHeight) + "px;background-position:-" + (singleHeight * colIndex) + "px -" + (singleWidth * rowIndex) + "px;-" + cssPrefix + "-transition-property: -" + cssPrefix + "-transform; -" + cssPrefix + "-transition-duration: 200ms; -" + cssPrefix + "-transition-timing-function: ease-out; -" + cssPrefix + "-transform: translateX(0%) translateY(0%) translateZ(0px) rotateX(0deg) rotateY(0deg) rotate(0deg);"
+						}).inject(logo);
+						// Save it
+						shards.push(element);
+					});
+					// Create a DIV clear for next row
+					new Element("div",{ clear: "clear" }).inject(logo);
+				});
+		
+				// Chaos!
+				$$(shards).fromChaos(5000);
+			}
+		
+		});
+</script>
+</head>
+<body>
+<!-- Page Layout -->
+<div class="container">
+  <div class="row">
+    <div class="one-half column" style="margin-top: 25%">
+      <h1>Exploding Logo</h1>
+      <p>Hover over the Atomic Dog logo and watch it&nbsp;EXPLODE!</p>
+      <hr>
+    </div>
+  </div>
+  <div id="logoBox"> <a href="javascript:void(0)" id="homeLogo">Eddie Ballz Logo</a> </div>
+</div>
+<!-- End  -->
+</body>
+</html>
